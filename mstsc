@@ -1,0 +1,12 @@
+_mstsc()
+{
+  COMPREPLY=(
+    /v: /g: /admin /f /w: /h: /public /multimon /l /edit
+    /restrictedAdmin /remoteGuard /prompt /shadow: /control
+    /noConsentPrompt /?
+  )
+}
+
+complete -F _mstsc mstsc.exe
+
+# vim: ft=sh
