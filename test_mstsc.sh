@@ -1,7 +1,10 @@
 #!/bin/bash
 
+source /usr/share/bash-completion/bash_completion
+
 set -u
 
+MSTSC_HOME=rdp
 source ./mstsc
 
 pass=0
@@ -13,6 +16,8 @@ run()
   read -ra COMP_WORDS <<< "$line"
   [[ "$line" == *" " ]] && COMP_WORDS+=("")
   COMP_CWORD=$((${#COMP_WORDS[@]} - 1))
+  COMP_LINE="$line"
+  COMP_POINT=${#line}
   COMPREPLY=()
   _mstsc
 }
@@ -38,6 +43,13 @@ assert_eq '/h:'
 
 run 'mstsc.exe /p'
 assert_eq '/public  /prompt '
+
+win_mstsc_home="$(wslpath -m $MSTSC_HOME)"
+run 'mstsc.exe '
+assert_eq "$win_mstsc_home/Default2.rdp $win_mstsc_home/Default.rdp"
+
+run "mstsc.exe $win_mstsc_home/Default2"
+assert_eq "$win_mstsc_home/Default2.rdp"
 
 echo
 echo "PASS=$pass FAIL=$fail"

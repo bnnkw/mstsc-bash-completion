@@ -5,9 +5,30 @@ _mstsc_options() {
     /noConsentPrompt /?
 }
 
+_mstsc_rdp_files()
+{
+  local cur="$1"
+  COMPREPLY=()
+  for f in "${MSTSC_HOME%/}"/*.rdp; do
+    mpath="$(wslpath -m "$f")"
+    if [[ "$mpath" == "$cur"* ]]; then
+      COMPREPLY+=("$mpath")
+    fi
+  done
+}
+
 _mstsc()
 {
-  local cur="${COMP_WORDS[COMP_CWORD]}"
+  local cur prev
+  _comp_initialize || return
+
+  # A UNC path starts with '\\', which 'wslpath -m' renders as '//'.
+  if [[ "$cur" == //* || "$prev" == '/edit' ]] \
+    || [[ "$cur" != /* && "$prev" == 'mstsc.exe' ]]; then
+    _mstsc_rdp_files "$cur"
+    return
+  fi
+
   COMPREPLY=()
   while read; do
     [[ "$REPLY" == "$cur"* ]] || continue
@@ -17,7 +38,7 @@ _mstsc()
       COMPREPLY+=("$REPLY ")
     fi
   done < <(_mstsc_options)
-  [ -v COMP_LINE ] && compopt -o nospace
+  [ -v COMP_TYPE ] && compopt -o nospace
 }
 
 complete -F _mstsc mstsc.exe
