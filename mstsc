@@ -1,10 +1,23 @@
+_mstsc_options() {
+  printf '%s\n' \
+    /v: /g: /admin /f /w: /h: /public /multimon /l /edit \
+    /restrictedAdmin /remoteGuard /prompt /shadow: /control \
+    /noConsentPrompt /?
+}
+
 _mstsc()
 {
-  COMPREPLY=(
-    /v: /g: /admin /f /w: /h: /public /multimon /l /edit
-    /restrictedAdmin /remoteGuard /prompt /shadow: /control
-    /noConsentPrompt /?
-  )
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  COMPREPLY=()
+  while read; do
+    [[ "$REPLY" == "$cur"* ]] || continue
+    if [[ "$REPLY" == *: ]]; then
+      COMPREPLY+=("$REPLY")
+    else
+      COMPREPLY+=("$REPLY ")
+    fi
+  done < <(_mstsc_options)
+  [ -v COMP_LINE ] && compopt -o nospace
 }
 
 complete -F _mstsc mstsc.exe
